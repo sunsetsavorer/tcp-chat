@@ -6,8 +6,8 @@ import (
 	"net"
 )
 
-var connections []net.Conn = make([]net.Conn, 0)
 var messages chan string = make(chan string, 5)
+var users map[string]net.Conn = make(map[string]net.Conn)
 
 func main() {
 
@@ -53,6 +53,7 @@ func handleConnection(conn net.Conn) {
 		text := scanner.Text()
 
 		if !isRegistered {
+
 			if text == "" {
 				sendToUser(
 					conn,
@@ -61,10 +62,18 @@ func handleConnection(conn net.Conn) {
 				continue
 			}
 
+			if _, isUserExists := getConnectionByNickname(text); isUserExists {
+				sendToUser(
+					conn,
+					"This nickname already taken!!!",
+				)
+				continue
+			}
+
 			isRegistered = true
 			name = text
 
-			connections = append(connections, conn)
+			users[name] = conn
 			sendToRoom(fmt.Sprintf("%s joined to chat", name))
 			continue
 		}
@@ -105,8 +114,15 @@ func sendToUser(conn net.Conn, message string) {
 func chatReceiver() {
 
 	for message := range messages {
-		for _, conn := range connections {
+		for _, conn := range users {
 			fmt.Fprintf(conn, "%s\r\n", message)
 		}
 	}
+}
+
+func getConnectionByNickname(nickname string) (net.Conn, bool) {
+
+	conn, ok := users[nickname]
+
+	return conn, ok
 }
