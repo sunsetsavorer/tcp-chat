@@ -125,7 +125,8 @@ func (s *ChatServer) handleCommand(command, nickname string) {
 		s.sendToUser(
 			conn,
 			"[ AVAILABLE COMMANDS ]\n"+
-				"| /exit - leave chat",
+				"| /exit - leave chat\n"+
+				"| /users - show room participants",
 		)
 
 	case "/exit":
@@ -133,10 +134,22 @@ func (s *ChatServer) handleCommand(command, nickname string) {
 			conn,
 			fmt.Sprintf("| Bye %s!", nickname),
 		)
+		conn.Close()
+
 		s.deleteUser(nickname)
 		s.sendToRoom(fmt.Sprintf("[ %s left the chat ]", nickname))
 
 		fmt.Printf("%s disconnected\n", nickname)
+
+	case "/users":
+		message := "[ ACTIVE CHAT USERS ]\n"
+		nicknames := s.getNicknames()
+
+		for _, nickname := range nicknames {
+			message += fmt.Sprintf("- %s\n", nickname)
+		}
+
+		s.sendToUser(conn, message)
 
 	default:
 		s.sendToUser(
@@ -201,4 +214,18 @@ func (s *ChatServer) deleteUser(nickname string) {
 	s.mu.Lock()
 	delete(s.users, nickname)
 	s.mu.Unlock()
+}
+
+func (s *ChatServer) getNicknames() []string {
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	nicknames := make([]string, 0, len(s.users))
+
+	for nickname := range s.users {
+		nicknames = append(nicknames, nickname)
+	}
+
+	return nicknames
 }
