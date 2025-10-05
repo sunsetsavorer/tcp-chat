@@ -4,10 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"sync"
 )
 
-var messages chan string = make(chan string, 5)
-var users map[string]net.Conn = make(map[string]net.Conn)
+var (
+	messages chan string         = make(chan string, 5)
+	users    map[string]net.Conn = make(map[string]net.Conn)
+	mu       sync.RWMutex
+)
 
 func main() {
 
@@ -73,20 +77,22 @@ func handleConnection(conn net.Conn) {
 			isRegistered = true
 			name = text
 
-			users[name] = conn
+			addUser(name, conn)
 			sendToRoom(fmt.Sprintf("%s joined to chat", name))
 			continue
 		}
 
 		if text == "Exit" {
-			fmt.Printf("%s disconnected\n", name)
-
 			sendToUser(
 				conn,
 				fmt.Sprintf("Bye %s!", name),
 			)
 
+			deleteUser(name)
+
 			sendToRoom(fmt.Sprintf("%s left the chat", name))
+
+			fmt.Printf("%s disconnected\n", name)
 
 			break
 		} else if text != "" {
@@ -122,7 +128,23 @@ func chatReceiver() {
 
 func getConnectionByNickname(nickname string) (net.Conn, bool) {
 
+	mu.RLock()
 	conn, ok := users[nickname]
+	mu.RUnlock()
 
 	return conn, ok
+}
+
+func addUser(nickname string, conn net.Conn) {
+
+	mu.Lock()
+	users[nickname] = conn
+	mu.Unlock()
+}
+
+func deleteUser(nickname string) {
+
+	mu.Lock()
+	delete(users, nickname)
+	mu.Unlock()
 }
