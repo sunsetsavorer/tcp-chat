@@ -61,7 +61,7 @@ func (s *ChatServer) handleConnection(conn net.Conn) {
 	fmt.Printf("%s connected\n", name)
 	s.sendToUser(
 		conn,
-		fmt.Sprintf("Welcome to TCP chat %s, enter your nickname:", name),
+		fmt.Sprintf("| Welcome to TCP chat %s, enter your nickname:", name),
 	)
 
 	scanner := bufio.NewScanner(conn)
@@ -75,7 +75,7 @@ func (s *ChatServer) handleConnection(conn net.Conn) {
 			if text == "" {
 				s.sendToUser(
 					conn,
-					"Nickname can't be empty!!!",
+					"| Nickname can't be empty!!!",
 				)
 				continue
 			}
@@ -83,7 +83,7 @@ func (s *ChatServer) handleConnection(conn net.Conn) {
 			if _, ok := s.getConnectionByNickname(text); ok {
 				s.sendToUser(
 					conn,
-					"This nickname already taken!!!",
+					"| This nickname already taken!!!",
 				)
 				continue
 			}
@@ -91,20 +91,25 @@ func (s *ChatServer) handleConnection(conn net.Conn) {
 			isRegistered = true
 			name = text
 
+			s.sendToUser(
+				conn,
+				"| Use /help command to see list of available commands",
+			)
+
 			s.addUser(name, conn)
-			s.sendToRoom(fmt.Sprintf("%s joined to chat", name))
+			s.sendToRoom(fmt.Sprintf("[ %s joined to chat ]", name))
 			continue
 		}
 
 		if text == "Exit" {
 			s.sendToUser(
 				conn,
-				fmt.Sprintf("Bye %s!", name),
+				fmt.Sprintf("| Bye %s!", name),
 			)
 
 			s.deleteUser(name)
 
-			s.sendToRoom(fmt.Sprintf("%s left the chat", name))
+			s.sendToRoom(fmt.Sprintf("[ %s left the chat ]", name))
 
 			fmt.Printf("%s disconnected\n", name)
 
@@ -112,7 +117,7 @@ func (s *ChatServer) handleConnection(conn net.Conn) {
 		} else if text != "" {
 			fmt.Printf("%s enters: %s\n", name, text)
 
-			s.sendToRoom(fmt.Sprintf("%s: %s", name, text))
+			s.sendToRoom(fmt.Sprintf("> %s: %s", name, text))
 		}
 	}
 }
