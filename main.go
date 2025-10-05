@@ -29,8 +29,6 @@ func main() {
 			continue
 		}
 
-		connections = append(connections, conn)
-
 		go handleConnection(conn)
 	}
 }
@@ -40,14 +38,12 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	name := conn.RemoteAddr().String()
+	isRegistered := false
 
 	fmt.Printf("%s connected\n", name)
-
-	sendToRoom(fmt.Sprintf("%s joined to chat", name))
-
 	sendToUser(
 		conn,
-		fmt.Sprintf("Welcome to TCP chat %s", name),
+		fmt.Sprintf("Welcome to TCP chat %s, enter your nickname:", name),
 	)
 
 	scanner := bufio.NewScanner(conn)
@@ -55,6 +51,23 @@ func handleConnection(conn net.Conn) {
 	for scanner.Scan() {
 
 		text := scanner.Text()
+
+		if !isRegistered {
+			if text == "" {
+				sendToUser(
+					conn,
+					"Nickname can't be empty!!!",
+				)
+				continue
+			}
+
+			isRegistered = true
+			name = text
+
+			connections = append(connections, conn)
+			sendToRoom(fmt.Sprintf("%s joined to chat", name))
+			continue
+		}
 
 		if text == "Exit" {
 			fmt.Printf("%s disconnected\n", name)
