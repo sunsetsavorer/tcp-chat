@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 
 	"github.com/sunsetsavorer/tcp-chat.git/config"
@@ -101,25 +102,59 @@ func (s *ChatServer) handleConnection(conn net.Conn) {
 			continue
 		}
 
-		if text == "Exit" {
-			s.sendToUser(
-				conn,
-				fmt.Sprintf("| Bye %s!", name),
-			)
+		isCommand := strings.HasPrefix(text, "/")
 
-			s.deleteUser(name)
-
-			s.sendToRoom(fmt.Sprintf("[ %s left the chat ]", name))
-
-			fmt.Printf("%s disconnected\n", name)
-
-			break
-		} else if text != "" {
-			fmt.Printf("%s enters: %s\n", name, text)
-
-			s.sendToRoom(fmt.Sprintf("> %s: %s", name, text))
+		if isCommand {
+			s.handleCommand(text, name)
+			continue
 		}
+
+		s.handleMessage(text, name)
 	}
+}
+
+func (s *ChatServer) handleCommand(command, nickname string) {
+
+	conn, ok := s.getConnectionByNickname(nickname)
+	if !ok {
+		return
+	}
+
+	switch command {
+	case "/help":
+		s.sendToUser(
+			conn,
+			"[ AVAILABLE COMMANDS ]\n"+
+				"| /exit - leave chat",
+		)
+
+	case "/exit":
+		s.sendToUser(
+			conn,
+			fmt.Sprintf("| Bye %s!", nickname),
+		)
+		s.deleteUser(nickname)
+		s.sendToRoom(fmt.Sprintf("[ %s left the chat ]", nickname))
+
+		fmt.Printf("%s disconnected\n", nickname)
+
+	default:
+		s.sendToUser(
+			conn,
+			"| Unknown command! Use /help command to see list of available commands",
+		)
+	}
+}
+
+func (s *ChatServer) handleMessage(message, nickname string) {
+
+	if message == "" {
+		return
+	}
+
+	fmt.Printf("%s enters: %s\n", nickname, message)
+
+	s.sendToRoom(fmt.Sprintf("> %s: %s", nickname, message))
 }
 
 func (s *ChatServer) sendToRoom(message string) {
