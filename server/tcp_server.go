@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sunsetsavorer/tcp-chat.git/config"
+	"github.com/sunsetsavorer/tcp-chat-server/config"
 )
 
 type ChatServer struct {

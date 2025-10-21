@@ -1,4 +1,4 @@
-module github.com/sunsetsavorer/tcp-chat.git
+module github.com/sunsetsavorer/tcp-chat-server
 
 go 1.24.4
 

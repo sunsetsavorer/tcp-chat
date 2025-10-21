@@ -1,6 +1,6 @@
 package main
 
-import "github.com/sunsetsavorer/tcp-chat.git/app"
+import "github.com/sunsetsavorer/tcp-chat-server/app"
 
 func main() {
 

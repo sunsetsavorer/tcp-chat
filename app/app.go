@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/sunsetsavorer/tcp-chat.git/config"
-	"github.com/sunsetsavorer/tcp-chat.git/server"
+	"github.com/sunsetsavorer/tcp-chat-server/config"
+	"github.com/sunsetsavorer/tcp-chat-server/server"
 )
 
 type App struct {
