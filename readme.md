@@ -37,40 +37,20 @@
 ```
 ---
 
-## Конфигурация
-
-Файл `temp/config.toml` (пример ниже):
-
-```toml
-[Server]
-ChatReceiversCount = 3
-MessagesBufferSize = 100
-Address = "localhost:8080"
-```
-
----
-
 ## Установка и запуск
 
 > Требуется Go 1.22+
 
 ```bash
 # Клонировать репозиторий
-git clone https://github.com/sunsetsavorer/tcp-chat.git
-cd tcp-chat
+git clone https://github.com/sunsetsavorer/tcp-chat-server
+cd tcp-chat-server
 
 # Установить зависимости
 go mod tidy
 
 # Запустить сервер
 make run
-```
-
-Или собрать бинарник:
-
-```bash
-make build
-./build/tcp-chat
 ```
 
 ---
@@ -111,16 +91,9 @@ nc localhost 8080
 
 ---
 
-## Зависимости
+## Скриншоты
 
-* [spf13/viper](https://github.com/spf13/viper) — для загрузки конфигурации
-* Go стандартная библиотека: `net`, `sync`, `bufio`, `fmt`, `strings`
+<img width="1280" height="720" alt="изображение" src="https://github.com/user-attachments/assets/335c500e-cb15-4ca8-8ce6-2fd80bf41d3e" />
+<img width="1280" height="720" alt="изображение" src="https://github.com/user-attachments/assets/d4433ecb-3a05-41aa-849d-eac624b481cf" />
 
----
 
-## Автор
-
-**sunsetsavorer**
-GitHub: [@sunsetsavorer](https://github.com/sunsetsavorer)
-
----
